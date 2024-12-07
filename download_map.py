@@ -1,35 +1,71 @@
 import os
 import subprocess
-import osmnx as ox
 from pathlib import Path
+import requests
+import osmnx as ox
 
 def download_city_map(city_name="Jeddah", country="Saudi Arabia"):
     city_data_dir = Path("data") / city_name
     city_data_dir.mkdir(parents=True, exist_ok=True)
 
-    # Define the place
     place = f"{city_name}, {country}"
 
-    # Download the city graph using OSMnx
-    # network_type='drive' focuses on drivable roads.
+    # STEP 1: Download the city graph using OSMnx
+    # network_type='drive' focuses on drivable roads
     G = ox.graph_from_place(place, network_type='drive')
     graphml_path = city_data_dir / "city_graph.graphml"
     ox.save_graphml(G, filepath=graphml_path)
-    
-    # NOTE: OSMnx doesn't provide raw OSM XML directly. 
-    # In a real scenario, you'd use ox.geometries_from_place() or Overpass queries 
-    # to get raw OSM data in .osm format. For demo, we assume we have a city.osm file.
-    
-    # Placeholder: Create a dummy OSM file (You must replace this with actual OSM data)
+    print(f"GraphML file saved at: {graphml_path}")
+
+    # STEP 2: Obtain Raw OSM Data from Overpass API
     raw_osm_path = city_data_dir / "city.osm"
     if not raw_osm_path.exists():
-        # In a real scenario, download raw OSM data using Overpass and save it here.
-        raw_osm_path.write_text("<osm></osm>")
+        # To fetch raw OSM data, we need a bounding polygon of the place.
+        # OSMnx geocode_to_gdf gives a polygon for the place
+        gdf = ox.geocode_to_gdf(place)
+        if gdf.empty:
+            # If we fail to get a polygon, fallback to empty OSM
+            print("Failed to retrieve place polygon. Using dummy OSM.")
+            raw_osm_path.write_text("<osm></osm>")
+        else:
+            # Extract boundary polygon and convert to Overpass query area
+            # We'll use the bounding box of the place
+            minx, miny, maxx, maxy = gdf.total_bounds
 
-    # Convert OSM data to SUMO network using netconvert
+            # Construct an Overpass query to fetch highways in the bounding box
+            # This query retrieves ways with the 'highway' tag.
+            overpass_query = f"""
+            [out:xml][timeout:180];
+            (
+              way["highway"]({miny},{minx},{maxy},{maxx});
+              relation["highway"]({miny},{minx},{maxy},{maxx});
+            );
+            (._;>;);
+            out body;
+            """
+
+            print("Requesting raw OSM data from Overpass...")
+            r = requests.get("https://overpass-api.de/api/interpreter", params={'data': overpass_query.strip()})
+            if r.status_code == 200 and "<osm" in r.text:
+                raw_osm_path.write_bytes(r.content)
+                print(f"Raw OSM data saved at: {raw_osm_path}")
+            else:
+                print("Failed to retrieve OSM data from Overpass. Using dummy OSM file.")
+                raw_osm_path.write_text("<osm></osm>")
+    else:
+        print(f"Using existing OSM file at: {raw_osm_path}")
+
+    # STEP 3: Convert OSM data to SUMO network using netconvert
     net_path = city_data_dir / "network.net.xml"
     cmd = f"netconvert --osm-files {raw_osm_path} -o {net_path}"
-    subprocess.run(cmd, shell=True, check=False)
+    print("Converting OSM data to SUMO network...")
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
+    if result.returncode == 0:
+        print(f"SUMO network created at: {net_path}")
+    else:
+        print("netconvert failed to create a SUMO network.")
+        print("Error output:", result.stderr)
 
     print(f"Map data for {city_name}, {country} downloaded and converted to SUMO format.")
 
