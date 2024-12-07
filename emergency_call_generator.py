@@ -54,3 +54,7 @@ class EmergencyCallGenerator:
         if 7 <= hour < 9 or 16 <= hour < 19:
             return int(base_frequency * 1.5)
         return base_frequency
+
+if __name__ == "__main__":
+    gen = EmergencyCallGenerator()
+    gen.generate_calls(duration_hours=1, frequency=5)
