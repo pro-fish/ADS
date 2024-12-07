@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 
 class StatisticsCollector:
-    def __init__(self, city_name="Jeddah"):
+    def __init__(self, city_name="Makkah Region"):
         self.city_name = city_name
         self.city_data_dir = Path("data") / city_name
         self.stats_dir = self.city_data_dir / "statistics"
@@ -60,3 +60,10 @@ class StatisticsCollector:
     def _calculate_average_response_time(self):
         times = [r["time"] for r in self.stats["response_times"]]
         return sum(times)/len(times) if times else 0.0
+
+if __name__ == "__main__":
+    collector = StatisticsCollector()
+    # Example usage:
+    collector.record_response("call_1", 300, "ambulance_1")
+    collector.analyze_coverage([], [{"id": "call_1", "response_time": 300}])
+    collector.save_stats()
