@@ -19,3 +19,5 @@ def save_emergency_locations(city_name="Jeddah"):
     with open(city_data_dir / "emergency_locations.json", "w") as f:
         json.dump(locations, f, indent=4)
     print(f"Emergency locations saved for {city_name}.")
+if __name__ == "__main__":
+    save_emergency_locations()
