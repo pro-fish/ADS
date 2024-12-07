@@ -4,7 +4,7 @@ import networkx as nx
 import osmnx as ox
 
 class RouteOptimizer:
-    def __init__(self, city_name="Jeddah"):
+    def __init__(self, city_name="Makkah Region"):
         self.city_name = city_name
         self.city_data_dir = Path("data") / city_name
         self.city_data_dir.mkdir(parents=True, exist_ok=True)
@@ -38,3 +38,13 @@ class RouteOptimizer:
         # Adjust weights based on traffic_data before calling shortest_path
         # Stub: identical to get_optimal_route for now
         return self.get_optimal_route(start_coords, end_coords, traffic_data)
+
+
+if __name__ == "__main__":
+    optimizer = RouteOptimizer()
+    # Example usage:
+    # route = optimizer.get_optimal_route([21.5,39.2], [21.51,39.21])
+    # print("Optimal route:", route)
+    # If you don’t have immediate test coords, just print a message:
+    print("RouteOptimizer initialized for Makkah Region.")
+
