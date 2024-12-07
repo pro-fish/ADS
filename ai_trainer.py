@@ -18,7 +18,7 @@ class DispatchAI(nn.Module):
         return x
 
 class AITrainer:
-    def __init__(self, city_name="Jeddah", input_size=10, hidden_size=20, output_size=5):
+    def __init__(self, city_name="Makkah Region", input_size=10, hidden_size=20, output_size=5):
         self.city_name = city_name
         self.city_data_dir = Path("data") / city_name
         self.city_data_dir.mkdir(parents=True, exist_ok=True)
@@ -64,3 +64,17 @@ class AITrainer:
     def save_training_stats(self):
         with open(self.training_stats_file, "w") as f:
             json.dump(self.training_stats, f, indent=4)
+
+if __name__ == "__main__":
+    trainer = AITrainer("Makkah Region")
+    # Example dummy training step:
+    import torch
+    state = torch.randn(1,10)
+    next_state = torch.randn(1,10)
+    action = 0
+    reward = 1.0
+    done = False
+    trainer.train_episode(state, action, reward, next_state, done)
+    trainer.save_model()
+    trainer.save_training_stats()
+    print("Training complete and model saved.")
