@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 
-def save_emergency_locations(city_name="Jeddah"):
+def save_emergency_locations(city_name="Makkah Region"):
     city_data_dir = Path("data") / city_name
     city_data_dir.mkdir(parents=True, exist_ok=True)
     
