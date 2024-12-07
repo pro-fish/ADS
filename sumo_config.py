@@ -1,6 +1,6 @@
 from pathlib import Path
 
-def create_sumo_config(city_name="Jeddah"):
+def create_sumo_config(city_name="Makkah Region"):
     city_data_dir = Path("data") / city_name
     city_data_dir.mkdir(parents=True, exist_ok=True)
 
@@ -23,3 +23,6 @@ def create_sumo_config(city_name="Jeddah"):
     config_file = city_data_dir / "simulation.sumocfg"
     config_file.write_text(config_content.strip())
     print(f"SUMO configuration created for {city_name}.")
+
+if __name__ == "__main__":
+    create_sumo_config()
