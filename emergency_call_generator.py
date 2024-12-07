@@ -3,7 +3,7 @@ import random
 from pathlib import Path
 
 class EmergencyCallGenerator:
-    def __init__(self, city_name="Jeddah"):
+    def __init__(self, city_name="Makkah Region"):
         self.city_name = city_name
         self.city_data_dir = Path("data") / city_name
         self.city_data_dir.mkdir(parents=True, exist_ok=True)
