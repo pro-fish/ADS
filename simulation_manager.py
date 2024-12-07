@@ -14,7 +14,7 @@ from sumo_config import create_sumo_config
 from emergency_vehicles import create_emergency_vehicles
 
 class SimulationManager:
-    def __init__(self, city_name="Jeddah"):
+    def __init__(self, city_name="Makkah Region"):
         self.city_name = city_name
         self.city_data_dir = Path("data") / city_name
         self.city_data_dir.mkdir(parents=True, exist_ok=True)
@@ -135,3 +135,7 @@ class SimulationManager:
         with open(self.city_data_dir / "final_report.json", "w") as f:
             json.dump(final_report, f, indent=4)
         print("Final report generated.")
+if __name__ == "__main__":
+    manager = SimulationManager()
+    # Example: Run a short simulation
+    manager.run_simulation(duration_hours=1, resume=False)
